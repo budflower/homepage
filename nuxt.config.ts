@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
+  ssr: false,
   css: ['~/assets/css/main.css'],
   modules: ['@nuxtjs/tailwindcss'],
   tailwindcss: {
@@ -9,7 +10,14 @@ export default defineNuxtConfig({
     exposeConfig: false,
     viewer: false
   },
+  nitro: {
+    preset: 'static',
+    prerender: {
+      routes: ['/']
+    }
+  },
   app: {
+    baseURL: '/homepage/',
     head: {
       htmlAttrs: {
         lang: 'zh-CN'
