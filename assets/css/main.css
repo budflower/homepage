@@ -1,0 +1,306 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══ Design Tokens — Carbon ══════════════════════════════ */
+:root {
+  /* Carbon Teal theme active */
+  --seed-bg: #FFFFFF;
+  --seed-fg: #161616;
+  --seed-primary: #525252;
+  --seed-accent: #009D9A;
+  --seed-surface: #F4F4F4;
+  --seed-radius: 2px;
+
+  --hero-font-size: 56px;
+  --motion-duration: 0.5s;
+  --motion-delay-1: 0.1s;
+  --motion-delay-2: 0.2s;
+  --motion-delay-3: 0.3s;
+
+  --c-bg: var(--seed-bg);
+  --c-surface: var(--seed-surface);
+  --c-elevated: color-mix(in srgb, var(--seed-surface) 90%, white 10%);
+  --c-fg: var(--seed-fg);
+  --c-muted: var(--seed-primary);
+  --c-dim: color-mix(in srgb, var(--seed-primary) 60%, var(--seed-bg) 40%);
+  --c-accent: var(--seed-accent);
+  --c-accent-light: color-mix(in srgb, var(--seed-accent) 75%, white 25%);
+
+  --fg-3: color-mix(in srgb, var(--seed-fg) 3%, transparent);
+  --fg-5: color-mix(in srgb, var(--seed-fg) 5%, transparent);
+  --fg-8: color-mix(in srgb, var(--seed-fg) 8%, transparent);
+  --fg-14: color-mix(in srgb, var(--seed-fg) 14%, transparent);
+
+  --accent-4: color-mix(in srgb, var(--seed-accent) 4%, transparent);
+  --accent-6: color-mix(in srgb, var(--seed-accent) 6%, transparent);
+  --accent-8: color-mix(in srgb, var(--seed-accent) 8%, transparent);
+  --accent-12: color-mix(in srgb, var(--seed-accent) 12%, transparent);
+  --accent-18: color-mix(in srgb, var(--seed-accent) 18%, transparent);
+  --accent-25: color-mix(in srgb, var(--seed-accent) 25%, transparent);
+  --accent-28: color-mix(in srgb, var(--seed-accent) 28%, transparent);
+
+  --r-sm: calc(var(--seed-radius) * 1);
+  --r-md: var(--seed-radius);
+  --r-lg: calc(var(--seed-radius) * 2);
+
+  /* Terminal (Carbon dark chrome) */
+  --term-bg: #262626;
+  --term-header: #353535;
+  --term-border: #393939;
+  --term-text: #C6C6C6;
+  --term-dim: #A8A8A8;
+  --term-bright: #F4F4F4;
+  --term-accent: #78A9FF;
+
+  /* Action teal states */
+  --accent-hover: #007D79;
+
+  /* Traffic-light dots */
+  --dot-red: #FF5F57;
+  --dot-yellow: #FEBC2E;
+  --dot-green: #28C840;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+::selection {
+  background: var(--accent-28);
+  color: var(--seed-fg);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--seed-accent);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--seed-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--fg-14);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--c-dim);
+}
+
+/* ═══ Subtle Hover Glow (Carbon-compatible) ════════════════
+   Replaces cursor spotlight with a restrained layer glow
+   anchored to mouse position — no decorative blur or glow.
+════════════════════════════════════════════════════════════ */
+.cursor-spotlight {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      var(--accent-4) 0%,
+      transparent 50%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.cursor-spotlight.active {
+  opacity: 1;
+}
+
+/* ═══ Structured Nav Bar ═══════════════════════════════ */
+.carbon-nav {
+  background: var(--seed-bg);
+  border-bottom: 1px solid var(--fg-8);
+}
+
+/* ═══ Hero ════════════════════════════════════════════ */
+.hero-title {
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  font-size: clamp(36px, 6vw, var(--hero-font-size));
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 300;
+}
+
+.hero-title .char {
+  display: inline-block;
+  transition: color 0.15s ease;
+}
+
+.hero-title .char.scrambling {
+  color: var(--c-accent);
+}
+
+/* Grid pattern — structural rhythm */
+.hero-grid {
+  background-image:
+    linear-gradient(var(--fg-3) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fg-3) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, black 5%, transparent 65%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 45%, black 5%, transparent 65%);
+}
+
+/* ═══ Terminal Widget ════════════════════════════════ */
+.terminal-widget {
+  background: var(--term-bg);
+  border: 1px solid var(--term-border);
+  border-radius: var(--r-lg);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  overflow: hidden;
+}
+
+.terminal-header {
+  background: var(--term-header);
+  border-bottom: 1px solid var(--term-border);
+}
+
+.terminal-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.terminal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 14px;
+  background: var(--c-accent);
+  animation: blink 1s step-end infinite;
+  vertical-align: text-bottom;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ═══ Project Card ════════════════════════════════ */
+.bento-card {
+  background: var(--seed-bg);
+  border: 1px solid var(--fg-8);
+  border-radius: var(--r-lg);
+  transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bento-card:hover {
+  border-color: var(--accent-25);
+  box-shadow: 0 2px 6px 0 var(--fg-5);
+}
+
+/* Tilt on hover — subtle for Carbon */
+.bento-card-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Tag — Carbon label style */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  border-radius: var(--r-sm);
+  background: var(--accent-6);
+  color: var(--c-accent);
+  border: 1px solid var(--accent-12);
+}
+
+/* ═══ Section Divider ═════════════════════════════ */
+.accent-line {
+  height: 1px;
+  background: var(--fg-8);
+}
+
+/* ═══ CTA Buttons — Carbon patterns ═══════════════ */
+.carbon-btn-primary {
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.carbon-btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.carbon-btn-secondary {
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.carbon-btn-secondary:hover {
+  background: var(--fg-5);
+  border-color: var(--fg-14);
+}
+
+/* Magnetic — subtle for Carbon */
+.magnetic-btn {
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ═══ Scroll reveal ═══════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity var(--motion-duration) cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--motion-duration) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 {
+  transition-delay: var(--motion-delay-1);
+}
+
+.reveal-delay-2 {
+  transition-delay: var(--motion-delay-2);
+}
+
+.reveal-delay-3 {
+  transition-delay: var(--motion-delay-3);
+}
+
+/* ═══ Mobile menu ═════════════════════════════════ */
+.mobile-menu {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.mobile-menu.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ═══ Carbon-specific utilities ═══════════════════ */
+.carbon-type-productive-heading-05 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.carbon-type-label-01 {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.16px;
+  line-height: 1.34;
+}
