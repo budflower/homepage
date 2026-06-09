@@ -1,53 +1,58 @@
-# 自动提交脚本 - 根据变更内容生成提交信息
+# Auto commit script - generate commit message based on changes
 param(
     [string]$CustomMessage = ""
 )
 
 $ErrorActionPreference = "Stop"
 
-# 颜色定义
+# Color definitions
 $Green = "`e[32m"
 $Yellow = "`e[33m"
 $Red = "`e[31m"
 $Reset = "`e[0m"
 
-Write-Host "${Yellow}🚀 开始自动提交流程...${Reset}" -ForegroundColor Yellow
+Write-Host "${Yellow}[Auto Commit] Starting...${Reset}"
 
-# 检查是否在 git 仓库中
+# Check if in git repository
 try {
     $null = git rev-parse --git-dir 2>$null
 } catch {
-    Write-Host "${Red}❌ 错误：当前目录不是 Git 仓库${Reset}" -ForegroundColor Red
+    Write-Host "${Red}Error: Not a git repository${Reset}"
     exit 1
 }
 
-# 获取当前分支
+# Get current branch
 $currentBranch = git branch --show-current
-Write-Host "📍 当前分支: $currentBranch" -ForegroundColor Cyan
+Write-Host "Branch: $currentBranch"
 
-# 检查是否有变更
+# Check for changes
 $status = git status --porcelain
 if (-not $status) {
-    Write-Host "${Green}✅ 没有需要提交的变更${Reset}" -ForegroundColor Green
+    Write-Host "${Green}No changes to commit${Reset}"
     exit 0
 }
 
-# 显示变更文件
-Write-Host "`n📁 检测到以下变更：" -ForegroundColor Cyan
+# Show changed files
+Write-Host "`nChanges detected:"
 $status | ForEach-Object {
     $fileStatus = $_.Substring(0, 2)
     $fileName = $_.Substring(3)
-    switch -Regex ($fileStatus.Trim()) {
-        "M"  { Write-Host "  📝 修改: $fileName" -ForegroundColor Yellow }
-        "A"  { Write-Host "  ➕ 新增: $fileName" -ForegroundColor Green }
-        "D"  { Write-Host "  🗑️  删除: $fileName" -ForegroundColor Red }
-        "??" { Write-Host "  🆕 未跟踪: $fileName" -ForegroundColor Blue }
-        default { Write-Host "  📄 $fileStatus : $fileName" }
+    $statusCode = $fileStatus.Trim()
+    if ($statusCode -eq "M") {
+        Write-Host "  [M] $fileName"
+    } elseif ($statusCode -eq "A") {
+        Write-Host "  [A] $fileName"
+    } elseif ($statusCode -eq "D") {
+        Write-Host "  [D] $fileName"
+    } elseif ($statusCode -eq "??") {
+        Write-Host "  [?] $fileName"
+    } else {
+        Write-Host "  [$statusCode] $fileName"
     }
 }
 
-# 生成提交信息
-function Generate-CommitMessage {
+# Generate commit message
+function Get-CommitMessage {
     $added = @()
     $modified = @()
     $deleted = @()
@@ -56,72 +61,73 @@ function Generate-CommitMessage {
         $fileStatus = $_.Substring(0, 2).Trim()
         $fileName = $_.Substring(3)
         
-        switch -Regex ($fileStatus) {
-            "A" { $added += $fileName }
-            "M" { $modified += $fileName }
-            "D" { $deleted += $fileName }
-            "\?\?" { $added += $fileName }
+        if ($fileStatus -eq "A" -or $fileStatus -eq "??") {
+            $added += $fileName
+        } elseif ($fileStatus -eq "M") {
+            $modified += $fileName
+        } elseif ($fileStatus -eq "D") {
+            $deleted += $fileName
         }
     }
     
-    $messageParts = @()
+    $parts = @()
     
     if ($added.Count -gt 0) {
         if ($added.Count -eq 1) {
             $file = Split-Path $added[0] -Leaf
-            $messageParts += "添加 $file"
+            $parts += "add $file"
         } else {
-            $messageParts += "添加 $($added.Count) 个文件"
+            $parts += "add $($added.Count) files"
         }
     }
     
     if ($modified.Count -gt 0) {
         if ($modified.Count -eq 1) {
             $file = Split-Path $modified[0] -Leaf
-            $messageParts += "更新 $file"
+            $parts += "update $file"
         } else {
-            $messageParts += "更新 $($modified.Count) 个文件"
+            $parts += "update $($modified.Count) files"
         }
     }
     
     if ($deleted.Count -gt 0) {
         if ($deleted.Count -eq 1) {
             $file = Split-Path $deleted[0] -Leaf
-            $messageParts += "删除 $file"
+            $parts += "delete $file"
         } else {
-            $messageParts += "删除 $($deleted.Count) 个文件"
+            $parts += "delete $($deleted.Count) files"
         }
     }
     
-    return $messageParts -join "，"
+    return $parts -join ", "
 }
 
-# 确定提交信息
+# Determine commit message
 if ($CustomMessage) {
     $commitMessage = $CustomMessage
 } else {
-    $commitMessage = Generate-CommitMessage
+    $commitMessage = Get-CommitMessage
 }
 
-Write-Host "`n💬 提交信息: $commitMessage" -ForegroundColor Magenta
+Write-Host "`nCommit message: $commitMessage"
 
-# 添加所有变更
-Write-Host "`n📤 添加文件到暂存区..." -ForegroundColor Cyan
+# Add all changes
+Write-Host "`nStaging files..."
 git add -A
 
-# 提交
-Write-Host "💾 创建提交..." -ForegroundColor Cyan
+# Commit
+Write-Host "Creating commit..."
 git commit -m "$commitMessage"
 
-# 推送到远程
-Write-Host "`n🚀 推送到 GitHub..." -ForegroundColor Cyan
+# Push to remote
+Write-Host "`nPushing to GitHub..."
 try {
     git push origin $currentBranch
-    Write-Host "${Green}✅ 成功推送到 origin/$currentBranch${Reset}" -ForegroundColor Green
+    Write-Host "${Green}Successfully pushed to origin/$currentBranch${Reset}"
 } catch {
-    Write-Host "${Yellow}⚠️ 推送失败，尝试设置上游分支...${Reset}" -ForegroundColor Yellow
+    Write-Host "Push failed, trying to set upstream..."
     git push -u origin $currentBranch
-    Write-Host "${Green}✅ 成功推送到 origin/$currentBranch${Reset}" -ForegroundColor Green
+    Write-Host "${Green}Successfully pushed to origin/$currentBranch${Reset}"
 }
 
-Write-Host "`n${Green}🎉 自动提交完成！${Reset}" -ForegroundColor Green
+Write-Host "`n${Green}[Auto Commit] Done!${Reset}"
